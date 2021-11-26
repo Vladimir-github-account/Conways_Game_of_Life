@@ -7,19 +7,51 @@ class Grid extends Component {
 	constructor(props) {
 		super( props );
 		this.state = {
-			gridValues: Array.from( { length: 256 }, (element, index) => {
-				return {
-					isBlack: true,
-					index,
-				};
-			} )
+			gridValues: Array( 256 ).fill( true )
 		};
+	};
+
+	changeGrid = (e) => {
+		const currentState = _.clone( this.state );
+		const adjacentSquaresArr = [-17, -16, -15, -1, 1, 15, 16, 17];
+		const changedCells = [];
+
+		const oppositeCells = (index) => {
+			return adjacentSquaresArr.filter( el => {
+				const adjacentCellIndex = index + el;
+				return adjacentCellIndex >= 0 && adjacentCellIndex < this.state.gridValues.length
+				       ? this.state.gridValues[ index + el ] === false
+				       : false;
+			} );
+		};
+
+		currentState.gridValues.forEach( (element, index) => {
+			let oppositeCellsArr;
+			if ( element ) {
+				//любая черная клетка, если она имеет 3-х белых соседей - оживает
+				oppositeCellsArr = oppositeCells( index );
+				if ( oppositeCellsArr.length === 3 ) {
+					changedCells.push( index );
+				}
+			} else {
+				//если у живой клетки есть две или три живые соседки, то эта клетка продолжает жить;
+				//в противном случае, если соседей меньше двух или больше трёх, клетка умирает
+				oppositeCellsArr = oppositeCells( index );
+				if ( oppositeCellsArr.length < 2 || oppositeCellsArr.length > 3 ) {
+					changedCells.push( index );
+				}
+			}
+		} );
+		changedCells.forEach( el => {
+			currentState.gridValues[ el ] = !currentState.gridValues[ el ];
+		} );
+		this.setState( currentState );
 	};
 
 	clickHandler = (elementNumber) => {
 		return (e) => {
 			const state = _.clone( this.state );
-			state.gridValues[ elementNumber ].isBlack = !state.gridValues[ elementNumber ].isBlack;
+			state.gridValues[ elementNumber ] = !state.gridValues[ elementNumber ];
 			this.setState( state );
 		};
 	};
@@ -45,6 +77,7 @@ class Grid extends Component {
 	render() {
 		return <>
 			{ this.renderGrid() }
+			<button onClick={ this.changeGrid }/>
 		</>;
 
 	}
