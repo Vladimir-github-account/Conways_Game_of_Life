@@ -7,21 +7,44 @@ import { COLS, ROWS }       from '../../constants';
 class Grid extends Component {
 	constructor(props) {
 		super( props );
+		this.intervalID = null;
 		this.state = {
 			gridValues: Array( ROWS * COLS ).fill( true )
 		};
 	};
 
 	changeGrid = (e) => {
+		if ( this.intervalID ) {
+			return;
+		}
+		this.intervalID = setInterval( this.oneStepChange, 100 );
+	};
+
+	stopChange = e => {
+		clearInterval( this.intervalID );
+		this.intervalID = null;
+	};
+
+	clickHandler = (elementNumber) => {
+		return (e) => {
+			const state = _.clone( this.state );
+			state.gridValues[ elementNumber ] = !state.gridValues[ elementNumber ];
+			this.setState( state );
+		};
+	};
+
+	oneStepChange = (e) => {
 		const currentState = _.clone( this.state );
 		const adjacentSquaresArr = [-COLS - 1, -COLS, -COLS + 1, -1, 1, COLS + 1, COLS, COLS - 1];
 		const changedCells = [];
+		const { gridValues } = this.state;
+
 
 		const oppositeCells = (index) => {
 			return adjacentSquaresArr.filter( el => {
 				const adjacentCellIndex = index + el;
-				return adjacentCellIndex >= 0 && adjacentCellIndex < this.state.gridValues.length
-				       ? this.state.gridValues[ index + el ] === false
+				return adjacentCellIndex >= 0 && adjacentCellIndex < gridValues.length
+				       ? gridValues[ index + el ] === false
 				       : false;
 			} );
 		};
@@ -46,13 +69,6 @@ class Grid extends Component {
 		this.setState( currentState );
 	};
 
-	clickHandler = (elementNumber) => {
-		return (e) => {
-			const state = _.clone( this.state );
-			state.gridValues[ elementNumber ] = !state.gridValues[ elementNumber ];
-			this.setState( state );
-		};
-	};
 
 	renderGrid() {
 		const { gridContainer } = styles;
@@ -75,11 +91,10 @@ class Grid extends Component {
 	render() {
 		return <>
 			{ this.renderGrid() }
-			<button onClick={ (e) => {
-				setInterval( this.changeGrid, 200 ); } }>
+			<button onClick={ this.changeGrid }>
 				START
 			</button>
-			<button> FINISH</button>
+			<button onClick={ this.stopChange }>STOP</button>
 		</>;
 
 	}
