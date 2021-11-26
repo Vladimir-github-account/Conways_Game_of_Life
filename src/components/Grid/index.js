@@ -2,18 +2,19 @@ import React, { Component } from 'react';
 import styles               from './gridStyles.module.scss';
 import Field                from '../Field';
 import _                    from 'lodash';
+import { COLS, ROWS }       from '../../constants';
 
 class Grid extends Component {
 	constructor(props) {
 		super( props );
 		this.state = {
-			gridValues: Array( 256 ).fill( true )
+			gridValues: Array( ROWS * COLS ).fill( true )
 		};
 	};
 
 	changeGrid = (e) => {
 		const currentState = _.clone( this.state );
-		const adjacentSquaresArr = [-17, -16, -15, -1, 1, 15, 16, 17];
+		const adjacentSquaresArr = [-COLS - 1, -COLS, -COLS + 1, -1, 1, COLS + 1, COLS, COLS - 1];
 		const changedCells = [];
 
 		const oppositeCells = (index) => {
@@ -28,14 +29,11 @@ class Grid extends Component {
 		currentState.gridValues.forEach( (element, index) => {
 			let oppositeCellsArr;
 			if ( element ) {
-				//любая черная клетка, если она имеет 3-х белых соседей - оживает
 				oppositeCellsArr = oppositeCells( index );
 				if ( oppositeCellsArr.length === 3 ) {
 					changedCells.push( index );
 				}
 			} else {
-				//если у живой клетки есть две или три живые соседки, то эта клетка продолжает жить;
-				//в противном случае, если соседей меньше двух или больше трёх, клетка умирает
 				oppositeCellsArr = oppositeCells( index );
 				if ( oppositeCellsArr.length < 2 || oppositeCellsArr.length > 3 ) {
 					changedCells.push( index );
@@ -70,14 +68,18 @@ class Grid extends Component {
 			return content;
 		};
 
-		return <div className={ gridContainer }>{ getFieldsArray( 16, 16 ) }</div>;
+		return <div className={ gridContainer }>{ getFieldsArray( ROWS, COLS ) }</div>;
 	}
 
 
 	render() {
 		return <>
 			{ this.renderGrid() }
-			<button onClick={ this.changeGrid }/>
+			<button onClick={ (e) => {
+				setInterval( this.changeGrid, 200 ); } }>
+				START
+			</button>
+			<button> FINISH</button>
 		</>;
 
 	}

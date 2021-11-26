@@ -13,7 +13,7 @@ const Field = props => {
 			<div key={ elementNumber }
 			     className={ fieldStyles }
 			     onClick={ clickHandlerWithElement }>
-				{ elementNumber }
+				{  }
 			</div>
 	);
 };
