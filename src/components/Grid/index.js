@@ -3,6 +3,7 @@ import styles               from './gridStyles.module.scss';
 import Field                from '../Field';
 import _                    from 'lodash';
 import { COLS, ROWS }       from '../../constants';
+import Sidebar              from '../Sidebar';
 
 class Grid extends Component {
 	constructor(props) {
@@ -91,10 +92,8 @@ class Grid extends Component {
 	render() {
 		return <>
 			{ this.renderGrid() }
-			<button onClick={ this.changeGrid }>
-				START
-			</button>
-			<button onClick={ this.stopChange }>STOP</button>
+			<Sidebar startHandler={ this.changeGrid }
+			         stopHandler={ this.stopChange }/>
 		</>;
 
 	}
